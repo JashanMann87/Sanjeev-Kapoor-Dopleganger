@@ -1,49 +1,70 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request # Import Request
 from pydantic import BaseModel
 from typing import List
-from fastapi.middleware.cors import CORSMiddleware # Import the CORS middleware
+from fastapi.middleware.cors import CORSMiddleware
+from ai_image_generator import generate_image_for_step, load_image_model
+from ai_parser import generate_recipe_from_dish, parse_recipe_with_ai
+from fastapi.staticfiles import StaticFiles
+from contextlib import asynccontextmanager
+import os
 
-app = FastAPI()
+# --- Lifespan Event Handler ---
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print("--- Server starting up, loading AI models... ---")
+    static_dir = "static"
+    os.makedirs(static_dir, exist_ok=True)
+    app.mount(f"/{static_dir}", StaticFiles(directory=static_dir), name=static_dir)
+    load_image_model()
+    yield
+    print("--- Server shutting down. ---")
 
-# --- CORS Configuration STARTS HERE ---
-# List of origins that are allowed to make requests to this API
-origins = [
-    "http://localhost:5173", # The address of your React frontend
-]
+app = FastAPI(lifespan=lifespan)
 
+# --- CORS Configuration ---
+origins = ["http://localhost:5173"]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins, # Allows specified origins
+    allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"], # Allows all methods (GET, POST, etc.)
-    allow_headers=["*"], # Allows all headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
-# --- CORS Configuration ENDS HERE ---
 
-
-# Defines the shape of the data we expect to receive
+# --- Pydantic Models ---
 class RecipeInput(BaseModel):
     text: str
-
-# Defines the shape for a single recipe step in the output
 class StepOutput(BaseModel):
     step_text: str
     image_url: str
-
-# Defines the shape of the final output we will send back
 class RecipeOutput(BaseModel):
+    full_text: str
     steps: List[StepOutput]
 
-
-# This is our mock endpoint
+# --- Updated Endpoint Logic ---
+# Add 'request: Request' to the function signature
 @app.post("/process-recipe", response_model=RecipeOutput)
-async def process_recipe(input_data: RecipeInput):
-    mock_steps = [
-        {"step_text": "This is a fake step 1: Mix the ingredients.", "image_url": "https://via.placeholder.com/150"},
-        {"step_text": "This is a fake step 2: Bake in the oven.", "image_url": "https://via.placeholder.com/150"}
-    ]
-    return {"steps": mock_steps}
+async def process_recipe(input_data: RecipeInput, request: Request):
+    dish_name = input_data.text
+    full_recipe_text = await generate_recipe_from_dish(dish_name)
+    parsed_steps_text = await parse_recipe_with_ai(full_recipe_text)
 
+    final_steps = []
+    for step_text in parsed_steps_text:
+        # Generate the relative path (e.g., /static/image.png)
+        relative_image_path = generate_image_for_step(step_text)
+        
+        # --- NEW: Create the full, absolute URL ---
+        # This combines the server's address with the image path
+        base_url = str(request.base_url)
+        absolute_image_url = f"{base_url.rstrip('/')}{relative_image_path}"
+
+        final_steps.append({
+            "step_text": step_text,
+            "image_url": absolute_image_url # Use the new absolute URL
+        })
+
+    return {"full_text": full_recipe_text, "steps": final_steps}
 
 @app.get("/")
 def read_root():

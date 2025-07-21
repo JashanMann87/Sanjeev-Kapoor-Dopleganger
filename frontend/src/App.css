@@ -1,0 +1,213 @@
+/* --- Global Resets & Fonts --- */
+:root {
+  --primary-color: #00796b; /* Teal */
+  --secondary-color: #ffc107; /* Amber */
+  --background-color: #f5f5f5; /* Light Gray */
+  --panel-background: #ffffff;
+  --text-color: #212121;
+  --light-text-color: #757575;
+  --border-color: #e0e0e0;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+/* --- Main App Layout --- */
+.app-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* --- Left Control Panel --- */
+.left-panel {
+  width: 380px;
+  flex-shrink: 0;
+  background-color: var(--panel-background);
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border-color);
+  box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  box-sizing: border-box;
+}
+
+.logo-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.logo-icon {
+  width: 40px;
+  height: 40px;
+}
+
+.left-panel h2 {
+  font-size: 24px;
+  margin: 0;
+  color: var(--primary-color);
+}
+
+.description {
+  font-size: 15px;
+  color: var(--light-text-color);
+  line-height: 1.6;
+  flex-grow: 1;
+}
+
+.input-group label {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-sizing: border-box;
+  margin-bottom: 16px;
+}
+
+.input-group button {
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.input-group button:hover {
+  background-color: #004d40; /* Darker Teal */
+}
+
+.input-group button:disabled {
+  background-color: #bdbdbd;
+  cursor: not-allowed;
+}
+
+/* --- Right Results Panel --- */
+.right-panel {
+  flex-grow: 1;
+  padding: 40px;
+  overflow-y: auto;
+  height: 100vh;
+  box-sizing: border-box;
+}
+
+.placeholder-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--light-text-color);
+  text-align: center;
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--light-text-color);
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid var(--border-color);
+  border-top: 5px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-message {
+  color: #d32f2f; /* Red */
+  text-align: center;
+  font-weight: 500;
+}
+
+/* --- Results Cards Styling --- */
+.full-recipe-card {
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 30px;
+}
+
+.full-recipe-card pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-family: 'Lora', serif;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+.step-card {
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+.step-image {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+  background-color: #e0e0e0;
+}
+
+.step-content {
+  padding: 20px;
+}
+
+.step-number {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 8px;
+  display: block;
+}
+
+.step-text {
+  font-size: 16px;
+  line-height: 1.6;
+  margin: 0;
+}
+
